@@ -30,8 +30,12 @@ import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.core.annotation.AnnotatedElementUtils;
 import org.springframework.core.env.Environment;
+import org.springframework.core.env.EnvironmentCapable;
+import org.springframework.core.env.StandardEnvironment;
 import org.springframework.data.annotation.Immutable;
 import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.domain.Persistable;
@@ -44,7 +48,6 @@ import org.springframework.data.support.PersistableIsNewStrategy;
 import org.springframework.data.util.Lazy;
 import org.springframework.data.util.TypeInformation;
 import org.springframework.expression.EvaluationContext;
-import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.MultiValueMap;
@@ -61,7 +64,8 @@ import org.springframework.util.StringUtils;
  * @author Mark Paluch
  * @author Johannes Englmeier
  */
-public class BasicPersistentEntity<T, P extends PersistentProperty<P>> implements MutablePersistentEntity<T, P> {
+public class BasicPersistentEntity<T, P extends PersistentProperty<P>>
+		implements MutablePersistentEntity<T, P>, EnvironmentCapable {
 
 	private static final String TYPE_MISMATCH = "Target bean of type %s is not of type of the persistent entity (%s)";
 
@@ -229,14 +233,23 @@ public class BasicPersistentEntity<T, P extends PersistentProperty<P>> implement
 		this.environment = environment;
 	}
 
+	@Override
+	public Environment getEnvironment() {
+
+		if (this.environment == null) {
+			this.environment = new StandardEnvironment();
+		}
+
+		return this.environment;
+	}
+
 	/**
 	 * Returns the given property if it is a better candidate for the id property than the current id property.
 	 *
 	 * @param property the new id property candidate, will never be {@literal null}.
 	 * @return the given id property or {@literal null} if the given property is not an id property.
 	 */
-	@Nullable
-	protected P returnPropertyIfBetterIdPropertyCandidateOrNull(P property) {
+	protected @Nullable P returnPropertyIfBetterIdPropertyCandidateOrNull(P property) {
 
 		if (!property.isIdProperty()) {
 			return null;
@@ -468,7 +481,7 @@ public class BasicPersistentEntity<T, P extends PersistentProperty<P>> implement
 	 * @since 3.3
 	 */
 	protected ValueEvaluationContext getValueEvaluationContext(Object rootObject) {
-		return ValueEvaluationContext.of(this.environment, getEvaluationContext(rootObject));
+		return ValueEvaluationContext.of(getEnvironment(), getEvaluationContext(rootObject));
 	}
 
 	/**
@@ -480,7 +493,7 @@ public class BasicPersistentEntity<T, P extends PersistentProperty<P>> implement
 	 * @since 3.3
 	 */
 	protected ValueEvaluationContext getValueEvaluationContext(Object rootObject, ExpressionDependencies dependencies) {
-		return ValueEvaluationContext.of(this.environment, getEvaluationContext(rootObject, dependencies));
+		return ValueEvaluationContext.of(getEnvironment(), getEvaluationContext(rootObject, dependencies));
 	}
 
 	/**

@@ -24,6 +24,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.core.DefaultParameterNameDiscoverer;
 import org.springframework.core.KotlinDetector;
@@ -34,7 +35,6 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.util.KotlinReflectionUtils;
 import org.springframework.data.util.NullableUtils;
 import org.springframework.data.util.ReflectionUtils;
-import org.springframework.lang.Nullable;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.ObjectUtils;
 
@@ -45,7 +45,7 @@ import org.springframework.util.ObjectUtils;
  * @author Mark Paluch
  * @author Johannes Englmeier
  * @since 2.0
- * @see org.springframework.lang.NonNull
+ * @see org.jspecify.annotations.NonNull
  * @see ReflectionUtils#isNullable(MethodParameter)
  * @see NullableUtils
  */
@@ -73,9 +73,8 @@ public class MethodInvocationValidator implements MethodInterceptor {
 				|| NullableUtils.isNonNull(repositoryInterface, ElementType.PARAMETER);
 	}
 
-	@Nullable
 	@Override
-	public Object invoke(@SuppressWarnings("null") MethodInvocation invocation) throws Throwable {
+	public @Nullable Object invoke(@SuppressWarnings("null") MethodInvocation invocation) throws Throwable {
 
 		Method method = invocation.getMethod();
 		Nullability nullability = nullabilityCache.get(method);

@@ -24,6 +24,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.aop.framework.Advised;
 import org.springframework.aop.framework.ProxyFactory;
 import org.springframework.beans.factory.BeanClassLoaderAware;
@@ -32,7 +34,6 @@ import org.springframework.core.convert.support.GenericConversionService;
 import org.springframework.data.convert.Jsr310Converters;
 import org.springframework.data.util.Lazy;
 import org.springframework.data.util.NullableWrapperConverters;
-import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 
@@ -230,9 +231,8 @@ class ProxyProjectionFactory implements ProjectionFactory, BeanClassLoaderAware 
 			Assert.notNull(targetType, "Target type must not be null");
 		}
 
-		@Nullable
 		@Override
-		public Object invoke(@SuppressWarnings("null") MethodInvocation invocation) throws Throwable {
+		public @Nullable Object invoke(@SuppressWarnings("null") MethodInvocation invocation) throws Throwable {
 
 			if (invocation.getMethod().equals(GET_TARGET_CLASS_METHOD)) {
 				return targetType;
