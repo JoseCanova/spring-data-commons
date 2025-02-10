@@ -37,6 +37,7 @@ import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.core.annotation.MergedAnnotations;
 import org.springframework.lang.NonNullApi;
 import org.springframework.util.ClassUtils;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.MultiValueMap;
 
 /**
@@ -234,7 +235,7 @@ public abstract class NullableUtils {
 		MultiValueMap<String, @Nullable Object> attributes = AnnotatedElementUtils
 				.getAllAnnotationAttributes(annotation.annotationType(), metaAnnotationName);
 
-		if (attributes.isEmpty()) {
+		if (CollectionUtils.isEmpty(attributes)) {
 			return false;
 		}
 
