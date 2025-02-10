@@ -303,12 +303,35 @@ public class ValueExpressionQueryRewriter {
 			return quotations.isQuoted(index);
 		}
 
-		public ValueExpression getParameter(String name) {
+		/**
+		 * @param name
+		 * @return
+		 * @since 4.0
+		 */
+		public boolean hasExpression(String name) {
+			return expressions.get(name) != null;
+		}
 
-			ValueExpression valueExpression = expressions.get(name);
+		@Nullable
+		public ValueExpression getParameter(String name) {
+			return expressions.get(name);
+		}
+
+		/**
+		 * Returns the required {@link ValueExpression} for the given name or throws an {@link IllegalArgumentException} if
+		 * the parameter is not present.
+		 *
+		 * @param name
+		 * @return
+		 * @throws IllegalArgumentException if the parameter is not present.
+		 * @since 4.0
+		 */
+		public ValueExpression getRequiredParameter(String name) {
+
+			ValueExpression valueExpression = getParameter(name);
 
 			if (valueExpression == null) {
-				throw new IllegalArgumentException("No ValueExpression with name '%s' found in query.".formatted(name));
+				throw new IllegalArgumentException("No ValueExpression with name '%s' found in query".formatted(name));
 			}
 
 			return valueExpression;
