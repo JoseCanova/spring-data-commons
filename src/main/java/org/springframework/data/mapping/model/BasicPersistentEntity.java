@@ -457,7 +457,7 @@ public class BasicPersistentEntity<T, P extends PersistentProperty<P>>
 	 * @return the evaluation context including all potential extensions.
 	 * @since 2.1
 	 */
-	protected EvaluationContext getEvaluationContext(Object rootObject) {
+	protected EvaluationContext getEvaluationContext(@Nullable Object rootObject) {
 		return evaluationContextProvider.getEvaluationContext(rootObject);
 	}
 
@@ -469,7 +469,7 @@ public class BasicPersistentEntity<T, P extends PersistentProperty<P>>
 	 * @return the evaluation context with extensions loaded that satisfy {@link ExpressionDependencies}.
 	 * @since 2.5
 	 */
-	protected EvaluationContext getEvaluationContext(Object rootObject, ExpressionDependencies dependencies) {
+	protected EvaluationContext getEvaluationContext(@Nullable Object rootObject, ExpressionDependencies dependencies) {
 		return evaluationContextProvider.getEvaluationContext(rootObject, dependencies);
 	}
 
@@ -480,7 +480,7 @@ public class BasicPersistentEntity<T, P extends PersistentProperty<P>>
 	 * @return the evaluation context including all potential extensions.
 	 * @since 3.3
 	 */
-	protected ValueEvaluationContext getValueEvaluationContext(Object rootObject) {
+	protected ValueEvaluationContext getValueEvaluationContext(@Nullable Object rootObject) {
 		return ValueEvaluationContext.of(getEnvironment(), getEvaluationContext(rootObject));
 	}
 
@@ -492,7 +492,8 @@ public class BasicPersistentEntity<T, P extends PersistentProperty<P>>
 	 * @return the evaluation context with extensions loaded that satisfy {@link ExpressionDependencies}.
 	 * @since 3.3
 	 */
-	protected ValueEvaluationContext getValueEvaluationContext(Object rootObject, ExpressionDependencies dependencies) {
+	protected ValueEvaluationContext getValueEvaluationContext(@Nullable Object rootObject,
+			ExpressionDependencies dependencies) {
 		return ValueEvaluationContext.of(getEnvironment(), getEvaluationContext(rootObject, dependencies));
 	}
 
