@@ -31,6 +31,7 @@ import org.springframework.core.convert.support.DefaultConversionService;
 import org.springframework.core.convert.support.GenericConversionService;
 import org.springframework.data.convert.Jsr310Converters;
 import org.springframework.data.util.Lazy;
+import org.springframework.data.util.NullabilityMethodInvocationValidator;
 import org.springframework.data.util.NullableWrapperConverters;
 import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
@@ -65,6 +66,13 @@ class ProxyProjectionFactory implements ProjectionFactory, BeanClassLoaderAware 
 
 	private final Lazy<DefaultMethodInvokingMethodInterceptor> defaultMethodInvokingMethodInterceptor = Lazy
 			.of(DefaultMethodInvokingMethodInterceptor::new);
+
+	private final Lazy<NullabilityMethodInvocationValidator> nullabilityValidator = Lazy
+		.of(() -> {
+			NullabilityMethodInvocationValidator validator = new NullabilityMethodInvocationValidator();
+			validator.setErrorFunction(methodInvocation -> new NullPointerException("Method marked non nullable used with null value. If this is by design consider providing additional metadata using @Nullable annotations."));
+			return validator;
+		});
 
 	/**
 	 * Creates a new {@link ProxyProjectionFactory}.
@@ -119,6 +127,11 @@ class ProxyProjectionFactory implements ProjectionFactory, BeanClassLoaderAware 
 		}
 
 		factory.addAdvice(new TargetAwareMethodInterceptor(source.getClass()));
+
+		if(NullabilityMethodInvocationValidator.supports(projectionType)) {
+			factory.addAdvice(nullabilityValidator.get());
+		}
+
 		factory.addAdvice(getMethodInterceptor(source, projectionType));
 
 		return (T) factory.getProxy(classLoader == null ? ClassUtils.getDefaultClassLoader() : classLoader);
