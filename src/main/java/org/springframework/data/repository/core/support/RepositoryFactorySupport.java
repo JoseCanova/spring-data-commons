@@ -335,7 +335,7 @@ public abstract class RepositoryFactorySupport
 	 * @return the implemented repository interface.
 	 * @since 2.0
 	 */
-	@SuppressWarnings({ "unchecked" })
+	@SuppressWarnings({ "unchecked", "deprecation" })
 	public <T> T getRepository(Class<T> repositoryInterface, RepositoryFragments fragments) {
 
 		if (logger.isDebugEnabled()) {
@@ -404,7 +404,7 @@ public abstract class RepositoryFactorySupport
 			if (logger.isTraceEnabled()) {
 				logger.trace(LogMessage.format("Register MethodInvocationValidator for %s…", repositoryInterface.getName()));
 			}
-			result.addAdvice(new NullabilityMethodInvocationValidator());
+			result.addAdvice(new MethodInvocationValidator());
 		}
 
 		if (this.exposeMetadata || shouldExposeMetadata(fragments)) {

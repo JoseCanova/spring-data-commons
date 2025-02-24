@@ -28,7 +28,6 @@ import org.springframework.core.DefaultParameterNameDiscoverer;
 import org.springframework.core.KotlinDetector;
 import org.springframework.core.MethodParameter;
 import org.springframework.core.ParameterNameDiscoverer;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.lang.Nullable;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.ObjectUtils;
@@ -36,11 +35,12 @@ import org.springframework.util.ObjectUtils;
 /**
  * Interceptor enforcing required return value and method parameter constraints declared on repository query methods.
  * Supports Kotlin nullability markers and JSR-305 Non-null annotations.
+ * Originally implemented via {@link org.springframework.data.repository.core.support.MethodInvocationValidator}.
  *
  * @author Mark Paluch
  * @author Johannes Englmeier
  * @author Christoph Strobl
- * @since 2.0
+ * @since 3.5
  * @see org.springframework.lang.NonNull
  * @see ReflectionUtils#isNullable(MethodParameter)
  * @see NullableUtils
@@ -49,7 +49,18 @@ public class NullabilityMethodInvocationValidator implements MethodInterceptor {
 
 	private final ParameterNameDiscoverer discoverer = new DefaultParameterNameDiscoverer();
 	private final Map<Method, Nullability> nullabilityCache = new ConcurrentHashMap<>(16);
-	private Function<MethodInvocation, RuntimeException> errorFunction = (invocation) -> new EmptyResultDataAccessException("Result must not be null", 1);
+	private final Function<MethodInvocation, RuntimeException> errorFunction;
+
+	public NullabilityMethodInvocationValidator() {
+		this((invocation) ->  new NullPointerException("Method marked non nullable used with null value. If this is by design consider providing additional metadata using @Nullable annotations."));
+	}
+
+	/**
+	 * @param errorFunction custom function creating the error in case of failure.
+	 */
+	protected NullabilityMethodInvocationValidator(Function<MethodInvocation, RuntimeException> errorFunction) {
+		this.errorFunction = errorFunction;
+	}
 
 	/**
 	 * Returns {@literal true} if the {@code type} is supported by this interceptor.
@@ -99,10 +110,6 @@ public class NullabilityMethodInvocationValidator implements MethodInterceptor {
 		}
 
 		return result;
-	}
-
-	public void setErrorFunction(Function<MethodInvocation, RuntimeException> errorFunction) {
-		this.errorFunction = errorFunction;
 	}
 
 	static final class Nullability {
@@ -158,10 +165,16 @@ public class NullabilityMethodInvocationValidator implements MethodInterceptor {
 
 			return requiresNoValue(parameter) || NullableUtils.isExplicitNullable(parameter)
 					|| (KotlinReflectionUtils.isSupportedKotlinClass(parameter.getDeclaringClass())
-							&& (ReflectionUtils.isNullable(parameter) || foo(parameter.getMethod())));
+							&& (ReflectionUtils.isNullable(parameter) || allowNullableReturn(parameter.getMethod())));
 		}
 
-		private static boolean foo(@Nullable Method method) {
+		/**
+		 * Check method return nullability
+		 * @param method
+		 * @return
+		 */
+		private static boolean allowNullableReturn(@Nullable Method method) {
+
 			if(method == null) {
 				return false;
 			}

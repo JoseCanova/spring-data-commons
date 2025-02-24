@@ -68,11 +68,7 @@ class ProxyProjectionFactory implements ProjectionFactory, BeanClassLoaderAware 
 			.of(DefaultMethodInvokingMethodInterceptor::new);
 
 	private final Lazy<NullabilityMethodInvocationValidator> nullabilityValidator = Lazy
-		.of(() -> {
-			NullabilityMethodInvocationValidator validator = new NullabilityMethodInvocationValidator();
-			validator.setErrorFunction(methodInvocation -> new NullPointerException("Method marked non nullable used with null value. If this is by design consider providing additional metadata using @Nullable annotations."));
-			return validator;
-		});
+			.of(NullabilityMethodInvocationValidator::new);
 
 	/**
 	 * Creates a new {@link ProxyProjectionFactory}.
