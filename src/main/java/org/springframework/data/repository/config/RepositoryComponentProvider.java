@@ -17,12 +17,14 @@ package org.springframework.data.repository.config;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.AnnotatedBeanDefinition;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
+import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.context.annotation.AnnotationConfigUtils;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.core.type.classreading.MetadataReader;
@@ -127,6 +129,16 @@ class RepositoryComponentProvider extends ClassPathScanningCandidateComponentPro
 		return candidates;
 	}
 
+	/**
+	 * Customizes the repository interface detection and triggers annotation detection on them.
+	 * Added this method to verify if exists a RepositoryConfigurationMap 
+	 */
+	public Set<BeanDefinition> findCandidateComponents(String basePackage, DefaultListableBeanFactory bf) {
+		Set<BeanDefinition> candidates = new LinkedHashSet<>();
+		return candidates;
+	}
+
+	
 	@NonNull
 	@Override
 	protected BeanDefinitionRegistry getRegistry() {

@@ -16,10 +16,13 @@
 package org.springframework.data.repository.config;
 
 import java.util.Collections;
+import java.util.Optional;
+import java.util.stream.Stream;
 
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.BeanNameGenerator;
+import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.core.env.Environment;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.core.type.classreading.MetadataReaderFactory;
@@ -69,11 +72,20 @@ public abstract class RepositoryConfigurationSourceSupport implements Repository
 		scanner.setConsiderNestedRepositoryInterfaces(shouldConsiderNestedRepositories());
 		scanner.setEnvironment(environment);
 		scanner.setResourceLoader(loader);
-
 		getExcludeFilters().forEach(scanner::addExcludeFilter);
 
-		return Streamable.of(() -> getBasePackages().stream()//
+		Streamable<BeanDefinition>
+			st = Streamable.of(() -> getBasePackages().stream()//
 				.flatMap(it -> scanner.findCandidateComponents(it).stream()));
+		
+		if(registry instanceof DefaultListableBeanFactory) {
+			DefaultListableBeanFactory bf = DefaultListableBeanFactory.class.cast(registry);
+			Stream<BeanDefinition> st1 = Optional.of(st).filter(std -> std.isEmpty())
+			.map(std -> getBasePackages().stream()
+			.flatMap(it -> scanner.findCandidateComponents(it,bf).stream())).get();
+			st = Streamable.of(st1.toList());
+		}
+		return st;
 	}
 
 	/**

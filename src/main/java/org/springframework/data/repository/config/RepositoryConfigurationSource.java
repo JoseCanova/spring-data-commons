@@ -95,6 +95,18 @@ public interface RepositoryConfigurationSource {
 	 */
 	Streamable<BeanDefinition> getCandidates(ResourceLoader loader);
 
+	
+	
+	/**
+	 * Returns the source {@link BeanDefinition}s of the repository interfaces to create repository instances for.
+	 *
+	 * @param loader
+	 * @return
+	 */
+	default Streamable<BeanDefinition> getCandidates(ClassLoader loader){
+		return Streamable.empty();
+	}
+
 	/**
 	 * Returns the value for the {@link String} attribute with the given name. The name is expected to be handed in
 	 * camel-case.
