@@ -21,7 +21,9 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.nanotek.config.MetaClassClassesStore;
 import org.springframework.beans.factory.annotation.AnnotatedBeanDefinition;
+import org.springframework.beans.factory.annotation.AnnotatedGenericBeanDefinition;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
@@ -133,8 +135,16 @@ class RepositoryComponentProvider extends ClassPathScanningCandidateComponentPro
 	 * Customizes the repository interface detection and triggers annotation detection on them.
 	 * Added this method to verify if exists a RepositoryConfigurationMap 
 	 */
-	public Set<BeanDefinition> findCandidateComponents(String basePackage, DefaultListableBeanFactory bf) {
+	public Set<BeanDefinition> findCandidateComponents(String basePackage, DefaultListableBeanFactory bff) {
 		Set<BeanDefinition> candidates = new LinkedHashSet<>();
+		
+		if (bff.containsBean(MetaClassClassesStore.class.getSimpleName())) {
+			MetaClassClassesStore repositoryMetaClassStore = bff.getBean(MetaClassClassesStore.class);
+			repositoryMetaClassStore.values().stream()
+			.map(c -> new AnnotatedGenericBeanDefinition(c))
+			.forEach(bdf -> candidates.add(bdf));
+		}
+		
 		return candidates;
 	}
 
