@@ -353,21 +353,6 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<executions>
-					<execution>
-						<id>java-test-compile</id>
-						<configuration>
-							<annotationProcessorPaths>
-								<path>
-									<groupId>com.querydsl</groupId>
-									<artifactId>querydsl-apt</artifactId>
-									<version>${querydsl}</version>
-									<classifier>general</classifier>
-								</path>
-							</annotationProcessorPaths>
-						</configuration>
-					</execution>
-				</executions>
 			</plugin>
 		</plugins>
 	</build>
